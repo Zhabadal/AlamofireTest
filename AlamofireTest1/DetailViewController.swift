@@ -10,16 +10,23 @@ import UIKit
 import Alamofire
 import AlamofireImage
 
+protocol DetailVCDelegate {
+    func deletePhoto()
+}
+
 class DetailViewController: UIViewController {
     
+    var delegate: DetailVCDelegate?
     var photo: PhotoInfo!
     var imageScrollView: ImageScrollView!
     var progressView: UIProgressView!
+    var deleteBarButton: UIBarButtonItem!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         title = photo.author
+        setupBarButtonItem()
         setupProgressView()
         
         AF.request(photo.url)
@@ -34,6 +41,16 @@ class DetailViewController: UIViewController {
                 self.imageScrollView.set(image: image)
             }
         }
+    }
+    
+    func setupBarButtonItem() {
+        deleteBarButton = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(deleteBarButtonAction))
+        navigationItem.rightBarButtonItem = deleteBarButton
+    }
+    
+    @objc func deleteBarButtonAction(_ sender: UIBarButtonItem) {
+        delegate?.deletePhoto()
+        navigationController?.popViewController(animated: true)
     }
     
     func setupImageScrollView() {

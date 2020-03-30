@@ -12,6 +12,7 @@ import Alamofire
 class MainTableViewController: UITableViewController {
     
     var photos = [PhotoInfo]()
+    var lastTappedPhotoIndexPath: IndexPath?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,8 +49,10 @@ class MainTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        lastTappedPhotoIndexPath = indexPath
         let detailVC = storyboard?.instantiateViewController(withIdentifier: "DetailViewController") as! DetailViewController
         detailVC.photo = photos[indexPath.row]
+        detailVC.delegate = self
         navigationController?.pushViewController(detailVC, animated: true)
     }
     
@@ -59,6 +62,18 @@ class MainTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
+            photos.remove(at: indexPath.row)
+            tableView.beginUpdates()
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            tableView.endUpdates()
+        }
+    }
+}
+
+extension MainTableViewController: DetailVCDelegate {
+    func deletePhoto() {
+        print("deletePhoto")
+        if let indexPath = lastTappedPhotoIndexPath {
             photos.remove(at: indexPath.row)
             tableView.beginUpdates()
             tableView.deleteRows(at: [indexPath], with: .automatic)
